@@ -1,0 +1,115 @@
+.\" Contact <luis.may@holbertonschool.com> and samueleangel@gmail.com for corrections
+.TH SIMPLE_SHELL 1 "April 2024" "1.0" "Simple Shell Manual"
+
+.SH NAME
+.B simple_shell
+\- minimal UNIX command interpreter
+
+.SH SYNOPSIS
+.B hsh
+[\fIOPTIONS\fP] [\fICOMMAND\fP]
+
+.SH DESCRIPTION
+\fBsimple_shell\fP is a lightweight implementation of a UNIX shell created by Luis May and [Tu Nombre] for Holberton School. It supports basic shell functionality including command execution, environment variable handling, and built-in commands.
+
+\fR─────────────────────────────────────────\fP
+.SH FEATURES
+.TP
+.B Command Execution:
+Executes commands with full path or via PATH lookup
+.TP
+.B Built-in Commands:
+.RS
+.IP \(bu 3
+.B exit
+[\fIstatus\fP]: Exit shell with optional status
+.IP \(bu 3
+.B env
+: Print current environment
+.IP \(bu 3
+.B help
+: Display this help
+.RE
+.TP
+.B Environment:
+Manipulates and inherits parent process environment
+
+.SH OPTIONS
+.TP
+.B \-
+Read commands from standard input (non-interactive mode)
+.TP
+.B \-\-help
+Display help message and exit
+.TP
+.B \-\-version
+Display version information and exit
+
+\fR─────────────────────────────────────────\fP
+.SH USAGE EXAMPLES
+.TP
+.B Interactive Mode:
+.nf
+$ ./hsh
+($) /bin/ls
+file1 file2
+($) exit
+.fi
+.TP
+.B Non-Interactive Mode:
+.nf
+$ echo "/bin/ls" | ./hsh
+file1 file2
+.fi
+.TP
+.B Built-in Commands:
+.nf
+($) env
+USER=holberton
+($) exit 42
+.fi
+
+.SH EXIT STATUS
+Exits with:
+.TP
+0
+Success
+.TP
+1
+General errors
+.TP
+2
+Misuse of shell builtins
+.TP
+127
+Command not found
+
+.SH ENVIRONMENT
+.TP
+.B PATH
+Colon-separated directories to search for commands
+
+.SH FILES
+.TP
+.I /bin/sh
+The standard shell (for comparison)
+
+.SH DIAGNOSTICS
+Error messages match standard sh output:
+.nf
+./hsh: 1: invalid_command: not found
+.fi
+
+.SH BUGS
+Report bugs to <luis.may@holbertonschool.com>
+
+.SH AUTHORS
+.B Luis Michel
+and
+.B Samuel Echeverri
+\- Holberton School students
+
+.SH COPYRIGHT
+Copyright © 2024 Holberton School
+.br
+This is free software
