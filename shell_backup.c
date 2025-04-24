@@ -78,6 +78,10 @@ int main(void)
 	}
 	/* Fork + execve */
 	pid = fork();
+
+	int status;
+	pid_t pid = fork();
+
 	if (pid == -1)
 	{
 		perror("fork");
@@ -90,14 +94,20 @@ int main(void)
 	{
 		execve(argv_exec[0], argv_exec, environ);
 		perror(argv_exec[0]);
-		fflush(stdout);
-		_exit(EXIT_FAILURE);
+		_exit(127);
 	}
-	wait(NULL);
+	else
+	{
+		waitpid(pid, &status, 0);
+
+		if (WIFEXITED(status))
+		{
+			last_status = WEXISTATUS(status);
+		}
+	}
 	free(argv_exec);
 	free(command);
 	command = NULL;
 	}
 	free_command_cache();
-	return (0);
 }
