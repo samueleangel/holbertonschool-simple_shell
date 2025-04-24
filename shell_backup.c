@@ -19,12 +19,12 @@ int main(void)
 
         if (read_command(&command, &len) == NULL)
         {
-            if (feof(stdin))
-            {
-                free(command);
-                free_command_cache();
-                exit(0);
-            }
+            if (read_command(&command, &len) == NULL)
+			{
+				free(command);
+				free_command_cache();
+				exit(0);
+			}
             continue;
         }
 
