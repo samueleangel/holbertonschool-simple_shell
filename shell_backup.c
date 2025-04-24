@@ -8,7 +8,8 @@ extern char **environ;
  */
 int main(void)
 {
-	char *command = NULL, **argv_exec;
+	char *command = NULL;
+	char **argv_exec = NULL;
 	size_t len = 0;
 	pid_t pid;
 	int status;
@@ -43,7 +44,7 @@ int main(void)
 	{
 		free(argv_exec);
 		free(command);
-		builtin_exit();
+		_exit(last_status);
 	}
 	if (strcmp(argv_exec[0], "cd") == 0)
 	{
@@ -79,9 +80,6 @@ int main(void)
 		}
 	}
 	/* Fork + execve */
-	pid_t pid = fork();
-
-	int status;
 	pid_t pid = fork();
 
 	if (pid == -1)
