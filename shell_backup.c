@@ -1,4 +1,4 @@
-#include "main.h"  // Incluir el encabezado con las definiciones necesarias
+#include "main.h"
 
 /**
  * main - Entry point for the shell
