@@ -1,38 +1,67 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
 #define MAX_LINE 1024
+#define MAX_ARGS 64
 
+/**
+ * trim_whitespace - Elimina espacios al inicio y final de una cadena
+ * @str: Cadena de entrada
+ * Return: Puntero a la cadena recortada
+ */
 char *trim_whitespace(char *str)
 {
     char *end;
 
-    while (*str == ' ' || *str == '\t') str++;
-    if (*str == 0) return str;
+    while (*str == ' ' || *str == '\t' || *str == '\n')
+        str++;
+
+    if (*str == '\0')
+        return str;
 
     end = str + strlen(str) - 1;
-    while (end > str && (*end == ' ' || *end == '\t' || *end == '\n')) end--;
+    while (end > str && (*end == ' ' || *end == '\t' || *end == '\n'))
+        end--;
 
     *(end + 1) = '\0';
+
     return str;
 }
 
+/**
+ * parse_line - Divide una línea en argumentos
+ * @line: Línea de entrada
+ * @args: Array donde se guardan los argumentos
+ */
+void parse_line(char *line, char **args)
+{
+    int i = 0;
+    line = trim_whitespace(line);
+    args[i] = strtok(line, " \t");
+    while (args[i] != NULL && i < MAX_ARGS - 1)
+    {
+        i++;
+        args[i] = strtok(NULL, " \t");
+    }
+    args[i] = NULL;
+}
+
+/**
+ * main - Bucle principal de la shell
+ */
 int main(void)
 {
     char line[MAX_LINE];
-    char *clean_line;
-    char *args[64];
+    char *args[MAX_ARGS];
     pid_t pid;
     int status;
 
     while (1)
     {
-        int i = 0;
-
         printf("#cisfun$ ");
         fflush(stdout);
 
@@ -43,24 +72,20 @@ int main(void)
             continue;
         }
 
-        clean_line = trim_whitespace(line);
-
+        char *clean_line = trim_whitespace(line);
         if (strlen(clean_line) == 0)
             continue;
 
-        args[i] = strtok(clean_line, " ");
-        while (args[i] != NULL && i < 63)
-        {
-            i++;
-            args[i] = strtok(NULL, " ");
-        }
-        args[i] = NULL;
+        parse_line(clean_line, args);
+
+        if (args[0] == NULL)
+            continue;
 
         pid = fork();
         if (pid == 0)
         {
             execvp(args[0], args);
-            perror("execvp");
+            perror(args[0]);
             exit(EXIT_FAILURE);
         }
         else if (pid < 0)
