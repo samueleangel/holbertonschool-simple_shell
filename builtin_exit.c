@@ -1,16 +1,12 @@
 #include "main.h"
 
 /**
- * builtin_exit - Exits the shell with status.
- * @args: Arguments (args[1] = exit status).
+ * builtin_exit - Exits the shell without handling arguments.
+ * @args: Unused argument (required for function signature).
  */
 void builtin_exit(char **args)
 {
-	int status = 0;
-
-	if (args[1])
-		status = atoi(args[1]);
-
+	(void)args;
 	free_command_cache();
-	exit(status);
+	exit(0);
 }
