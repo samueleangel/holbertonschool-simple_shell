@@ -19,29 +19,29 @@ int main(void)
 	pid_t pid;
 	char *args[] = {NULL, NULL};
 	extern char **environ;
+	int interactive = isatty(STDIN_FILENO);
 
 	while (1)
 	{
-		/* Display prompt */
-		printf("#cisfun$ ");
-		fflush(stdout);
-
-		/* Read command */
-		read = getline(&line, &len, stdin);
-
-		/* Handle EOF (Ctrl + D) */
-		if (read == -1)
+		if (interactive)
 		{
-			printf("\n");
-			free(line);
-			exit(EXIT_SUCCESS);
+			printf("#cisfun$ ");
+			fflush(stdout);
 		}
 
-		/* Remove newline */
+		read = getline(&line, &len, stdin);
+
+		if (read == -1)
+		{
+			if (interactive)
+				printf("\n");
+			break;
+		}
+
 		if (line[read - 1] == '\n')
 			line[read - 1] = '\0';
 
-		if (strlen(line) == 0)
+		if (line[0] == '\0')
 			continue;
 
 		args[0] = line;
@@ -49,17 +49,15 @@ int main(void)
 		pid = fork();
 		if (pid == -1)
 		{
-			perror("Error");
+			perror("fork");
 			continue;
 		}
 
-		if (pid == 0) /* Child process */
+		if (pid == 0)
 		{
-			/* Execute command */
 			if (execve(args[0], args, environ) == -1)
 			{
-				perror("./shell");
-				free(line);
+				fprintf(stderr, "%s: No such file or directory\n", args[0]);
 				exit(EXIT_FAILURE);
 			}
 		}
