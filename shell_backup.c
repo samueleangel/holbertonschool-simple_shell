@@ -19,11 +19,9 @@ int main(void)
 	while (1)
 	{
 		prompt();
-		if (read_command(&command, &len) == NULL)
-	{
-		if (feof(stdin))
+		command = read_command(&command, &len);
+		if (command == NULL)
 		{
-			free(command);
 			free_command_cache();
 			exit(0);
 		}
