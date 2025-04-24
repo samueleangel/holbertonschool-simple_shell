@@ -1,10 +1,9 @@
 #include "main.h"
 
 /**
- * sigint_handler - Custom handler for SIGINT
- * @sig: Signal number
+ * sigint_handler - Handles Ctrl+C.
+ * @sig: Signal number.
  */
-
 void sigint_handler(int sig)
 {
 	(void)sig;
@@ -12,6 +11,9 @@ void sigint_handler(int sig)
 	fflush(stdout);
 }
 
+/**
+ * set_sigint_handler - Sets Ctrl+C handler.
+ */
 void set_sigint_handler(void)
 {
 	signal(SIGINT, sigint_handler);

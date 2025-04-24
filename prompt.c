@@ -1,7 +1,7 @@
 #include "main.h"
 
 /**
- * prompt - Displays the shell prompt
+ * prompt - Displays shell prompt.
  */
 void prompt(void)
 {

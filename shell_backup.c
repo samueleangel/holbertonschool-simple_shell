@@ -1,85 +1,97 @@
 #include "main.h"
 
 /**
- * main - Entry point for the shell
- *
- * Return: 0 on success, or the exit status of the command on failure
+ * main - Entry point of the shell.
+ * Return: 0 on success, or exit status.
  */
- int main(void)
- {
-	 char *command = NULL, **argv_exec;
-	 size_t len = 0;
-	 pid_t pid;
-	 extern char **environ;
- 
-	 set_sigint_handler();
-	 while (1)
-	 {
-		 prompt();
- 
-		 if (read_command(&command, &len) == NULL)
-		 {
-			 if (feof(stdin))
-			 {
-				 free(command);
-				 free_command_cache();
-				 exit(0);
-			 }
-			 continue;
-		 }
- 
-		 if (strcmp(command, "exit") == 0)
-		 {
-			 free(command);
-			 free_command_cache();
-			 builtin_exit(NULL);
-		 }
- 
-		 if (command[0] != '\0')
-		 {
-			 argv_exec = parse_command(command);
- 
-			 if (argv_exec == NULL || argv_exec[0] == NULL)
-			 {
-				 free(argv_exec);
-				 free(command);
-				 command = NULL;
-				 continue;
-			 }
- 
-			 pid = fork();
- 
-			 if (pid == -1)
-			 {
-				 perror("fork");
-				 free(argv_exec);
-				 free(command);
-				 continue;
-			 }
- 
-			 if (pid == 0)
-			 {
-				 if (execve(argv_exec[0], argv_exec, environ) == -1)
-				 {
-					 perror(argv_exec[0]);
-					 free(argv_exec);
-					 free(command);
-					 exit(EXIT_FAILURE);
-				 }
-			 }
-			 else
-			 {
-				 wait(NULL);
-			 }
- 
-			 free(argv_exec);
-		 }
- 
-		 free(command);
-		 command = NULL;
-	 }
- 
-	 free_command_cache();
- 
-	 return (0);
- } 
+int main(void)
+{
+	char *command = NULL, **argv_exec;
+	size_t len = 0;
+	pid_t pid;
+
+	set_sigint_handler();
+	while (1)
+	{
+		prompt();
+		if (read_command(&command, &len) == NULL)
+	{
+		if (feof(stdin))
+		{
+			free(command);
+			free_command_cache();
+			exit(0);
+		}
+		continue;
+	}
+
+	argv_exec = parse_command(command);
+	if (argv_exec == NULL || argv_exec[0] == NULL)
+	{
+		free(argv_exec);
+		free(command);
+		command = NULL;
+		continue;
+	}
+
+	/* Built-ins */
+	if (strcmp(argv_exec[0], "exit") == 0)
+		builtin_exit(argv_exec);
+	if (strcmp(argv_exec[0], "cd") == 0)
+	{
+		builtin_cd(argv_exec);
+		free(argv_exec);
+		free(command);
+		command = NULL;
+		continue;
+	}
+	if (strcmp(argv_exec[0], "env") == 0)
+	{
+		print_env();
+		free(argv_exec);
+		free(command);
+		command = NULL;
+		continue;
+	}
+	/* PATH handling */
+	if (strchr(argv_exec[0], '/') == NULL)
+	{
+		char *full_path = find_in_path(argv_exec[0]);
+		if (full_path)
+		{
+			free(argv_exec[0]);
+			argv_exec[0] = full_path;
+		}
+		else
+		{
+			fprintf(stderr, "%s: command not found\n", argv_exec[0]);
+			free(argv_exec);
+			free(command);
+			command = NULL;
+			continue;
+		}
+	}
+	/* Fork + execve */
+	pid = fork();
+	if (pid == -1)
+	{
+		perror("fork");
+		free(argv_exec);
+		free(command);
+		command = NULL;
+		continue;
+	}
+	if (pid == 0)
+	{
+		execve(argv_exec[0], argv_exec, environ);
+		perror(argv_exec[0]);
+		_exit(EXIT_FAILURE);
+	}
+	wait(NULL);
+	free(argv_exec);
+	free(command);
+	command = NULL;
+	}
+	free_command_cache();
+	return (0);
+}

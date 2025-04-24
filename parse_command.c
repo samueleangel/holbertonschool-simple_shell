@@ -1,27 +1,23 @@
 #include "main.h"
 
 /**
- * parse_command - Splits a command string into arguments
- * @command: The command string
- *
- * Return: A NULL-terminated array of strings (arguments)
+ * parse_command - Splits command into args.
+ * @command: Command string.
+ * Return: NULL-terminated array of args.
  */
 char **parse_command(char *command)
 {
-	char **argv;
-	char *token;
-	int i = 0;
-	int bufsize = 64;
+	char **argv, *token;
+	int i = 0, bufsize = 64;
 
 	argv = malloc(sizeof(char *) * bufsize);
 	if (!argv)
 		return (NULL);
 
 	token = strtok(command, " ");
-	while (token != NULL)
+	while (token)
 	{
 		argv[i++] = token;
-
 		if (i >= bufsize)
 		{
 			bufsize += 64;
@@ -29,9 +25,9 @@ char **parse_command(char *command)
 			if (!argv)
 				return (NULL);
 		}
-
 		token = strtok(NULL, " ");
 	}
 	argv[i] = NULL;
 	return (argv);
 }
+
