@@ -8,24 +8,31 @@
 #define MAX_LINE 1024
 #define MAX_ARGS 64
 
-// Función para eliminar espacios al inicio y final
+extern char **environ;  /* Declaración explícita para execve */
+
+/* Elimina espacios al inicio y final */
 char *trim_spaces(char *str)
 {
-    while (isspace(*str)) str++; // eliminar espacios al inicio
-    if (*str == 0) return str;   // todo eran espacios
+    while (isspace(*str)) str++;
 
-    char *end = str + strlen(str) - 1;
-    while (end > str && isspace(*end)) end--; // espacios al final
+    if (*str == '\0')
+        return str;
+
+    char *end;
+    end = str + strlen(str) - 1;
+    while (end > str && isspace(*end)) end--;
     *(end + 1) = '\0';
 
     return str;
 }
 
-// Tokeniza el input en argumentos
+/* Tokeniza la línea de entrada */
 void tokenize(char *input, char **args)
 {
-    int i = 0;
-    char *token = strtok(input, " \t\r\n");
+    int i;
+    char *token;
+    i = 0;
+    token = strtok(input, " \t\r\n");
     while (token != NULL && i < MAX_ARGS - 1)
     {
         args[i++] = token;
@@ -40,6 +47,7 @@ int main(void)
     char *args[MAX_ARGS];
     pid_t pid;
     int status;
+    char *clean_line;
 
     while (1)
     {
@@ -50,25 +58,23 @@ int main(void)
             break;
         }
 
-        // Limpiar espacios
-        char *clean_line = trim_spaces(line);
-        if (strlen(clean_line) == 0) continue;
+        clean_line = trim_spaces(line);
+        if (strlen(clean_line) == 0)
+            continue;
 
-        // Tokenizar
         tokenize(clean_line, args);
-        if (args[0] == NULL) continue;
+        if (args[0] == NULL)
+            continue;
 
         pid = fork();
         if (pid == 0)
         {
-            // Hijo: ejecuta el comando
             execve(args[0], args, environ);
-            perror("execve"); // solo si falla
+            perror("execve");
             exit(EXIT_FAILURE);
         }
         else if (pid > 0)
         {
-            // Padre: espera al hijo
             waitpid(pid, &status, 0);
         }
         else
