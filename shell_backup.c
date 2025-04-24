@@ -1,5 +1,7 @@
 #include "main.h"
 
+extern char **environ;
+
 /**
  * main - Entry point of the shell.
  * Return: 0 on success, or exit status.
