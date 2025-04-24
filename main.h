@@ -25,5 +25,6 @@ void print_env(void);
 void free_command_cache(void);
 void add_to_history(char *command);
 char *find_in_path(char *cmd);
+extern int last_status;
 
 #endif

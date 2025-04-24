@@ -11,6 +11,8 @@ int main(void)
 	char *command = NULL, **argv_exec;
 	size_t len = 0;
 	pid_t pid;
+	int status;
+	static int last_status = 0;
 
 	set_sigint_handler();
 	while (1)
@@ -77,7 +79,7 @@ int main(void)
 		}
 	}
 	/* Fork + execve */
-	pid = fork();
+	pid_t pid = fork();
 
 	int status;
 	pid_t pid = fork();
