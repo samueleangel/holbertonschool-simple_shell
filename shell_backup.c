@@ -80,7 +80,7 @@ int main(void)
 		}
 	}
 	/* Fork + execve */
-	pid_t pid = fork();
+	pid = fork();
 
 	if (pid == -1)
 	{
@@ -102,7 +102,7 @@ int main(void)
 
 		if (WIFEXITED(status))
 		{
-			last_status = WEXISTATUS(status);
+			last_status = WEXITSTATUS(status);
 		}
 	}
 	free(argv_exec);
