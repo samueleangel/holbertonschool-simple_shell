@@ -3,85 +3,72 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include <ctype.h>
+#include <sys/types.h>
 
-#define MAX_LINE 1024
-#define MAX_ARGS 64
+#define MAX_COMMAND_LENGTH 1024
 
-extern char **environ;  /* Declaración explícita para execve */
-
-/* Elimina espacios al inicio y final */
-char *trim_spaces(char *str)
-{
-    while (isspace(*str)) str++;
-
-    if (*str == '\0')
-        return str;
-
-    char *end;
-    end = str + strlen(str) - 1;
-    while (end > str && isspace(*end)) end--;
-    *(end + 1) = '\0';
-
-    return str;
-}
-
-/* Tokeniza la línea de entrada */
-void tokenize(char *input, char **args)
-{
-    int i;
-    char *token;
-    i = 0;
-    token = strtok(input, " \t\r\n");
-    while (token != NULL && i < MAX_ARGS - 1)
-    {
-        args[i++] = token;
-        token = strtok(NULL, " \t\r\n");
-    }
-    args[i] = NULL;
-}
-
+/**
+ * main - Simple Shell 0.1
+ * Return: Always 0
+ */
 int main(void)
 {
-    char line[MAX_LINE];
-    char *args[MAX_ARGS];
-    pid_t pid;
-    int status;
-    char *clean_line;
+	char *line = NULL;
+	size_t len = 0;
+	ssize_t read;
+	pid_t pid;
+	char *args[] = {NULL, NULL};
+	extern char **environ;
 
-    while (1)
-    {
-        printf("$ ");
-        if (fgets(line, sizeof(line), stdin) == NULL)
-        {
-            perror("fgets");
-            break;
-        }
+	while (1)
+	{
+		/* Display prompt */
+		printf("#cisfun$ ");
+		fflush(stdout);
 
-        clean_line = trim_spaces(line);
-        if (strlen(clean_line) == 0)
-            continue;
+		/* Read command */
+		read = getline(&line, &len, stdin);
 
-        tokenize(clean_line, args);
-        if (args[0] == NULL)
-            continue;
+		/* Handle EOF (Ctrl + D) */
+		if (read == -1)
+		{
+			printf("\n");
+			free(line);
+			exit(EXIT_SUCCESS);
+		}
 
-        pid = fork();
-        if (pid == 0)
-        {
-            execve(args[0], args, environ);
-            perror("execve");
-            exit(EXIT_FAILURE);
-        }
-        else if (pid > 0)
-        {
-            waitpid(pid, &status, 0);
-        }
-        else
-        {
-            perror("fork");
-        }
-    }
+		/* Remove newline */
+		if (line[read - 1] == '\n')
+			line[read - 1] = '\0';
 
-    return 0;
+		if (strlen(line) == 0)
+			continue;
+
+		args[0] = line;
+
+		pid = fork();
+		if (pid == -1)
+		{
+			perror("Error");
+			continue;
+		}
+
+		if (pid == 0) /* Child process */
+		{
+			/* Execute command */
+			if (execve(args[0], args, environ) == -1)
+			{
+				perror("./shell");
+				free(line);
+				exit(EXIT_FAILURE);
+			}
+		}
+		else
+		{
+			wait(NULL);
+		}
+	}
+
+	free(line);
+	return (0);
 }
