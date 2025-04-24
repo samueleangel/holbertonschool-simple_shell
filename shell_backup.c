@@ -38,7 +38,11 @@ int main(void)
 
 	/* Built-ins */
 	if (strcmp(argv_exec[0], "exit") == 0)
-		builtin_exit(argv_exec);
+	{
+		free(argv_exec);
+		free(command);
+		builtin_exit();
+	}
 	if (strcmp(argv_exec[0], "cd") == 0)
 	{
 		builtin_cd(argv_exec);

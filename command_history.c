@@ -35,9 +35,7 @@ void free_command_cache(void)
 		return;
 
 	for (i = 0; i < history_count; i++)
-	{
 		free(command_history[i]);
-	}
 	free(command_history);
 	command_history = NULL;
 	history_count = 0;

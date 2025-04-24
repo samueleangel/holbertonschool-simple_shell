@@ -1,12 +1,10 @@
 #include "main.h"
 
 /**
- * builtin_exit - Exits the shell without handling arguments.
- * @args: Unused argument (required for function signature).
+ * builtin_exit - Exits the shell without handling arguments
  */
-void builtin_exit(char **args)
+void builtin_exit(void)
 {
-	(void)args;
 	free_command_cache();
-	exit(0);
+	_exit(0);
 }

@@ -19,7 +19,7 @@ void prompt(void);
 char *read_command(char **command, size_t *len);
 char **parse_command(char *command);
 void set_sigint_handler(void);
-void builtin_exit(char **args);
+void builtin_exit(void);
 void builtin_cd(char **args);
 void print_env(void);
 void free_command_cache(void);
