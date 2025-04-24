@@ -61,7 +61,6 @@ int main(void)
 		char *full_path = find_in_path(argv_exec[0]);
 		if (full_path)
 		{
-			free(argv_exec[0]);
 			argv_exec[0] = full_path;
 		}
 		else
