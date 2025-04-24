@@ -86,6 +86,7 @@ int main(void)
 	{
 		execve(argv_exec[0], argv_exec, environ);
 		perror(argv_exec[0]);
+		fflush(stdout);
 		_exit(EXIT_FAILURE);
 	}
 	wait(NULL);
