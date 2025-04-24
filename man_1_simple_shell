@@ -1,4 +1,4 @@
-.\" Contact <luis.may@holbertonschool.com> and samueleangel@gmail.com for corrections
+.\" Contact <luismichelpcontacto@gmail.com> and samueleangel@gmail.com for corrections
 .TH SIMPLE_SHELL 1 "April 2024" "1.0" "Simple Shell Manual"
 
 .SH NAME
@@ -10,7 +10,7 @@
 [\fIOPTIONS\fP] [\fICOMMAND\fP]
 
 .SH DESCRIPTION
-\fBsimple_shell\fP is a lightweight implementation of a UNIX shell created by Luis May and [Tu Nombre] for Holberton School. It supports basic shell functionality including command execution, environment variable handling, and built-in commands.
+\fBsimple_shell\fP is a lightweight implementation of a UNIX shell created by Luis Michel and Samuel Echeverri for Holberton School. It supports basic shell functionality including command execution, environment variable handling, and built-in commands.
 
 \fR─────────────────────────────────────────\fP
 .SH FEATURES
@@ -101,7 +101,7 @@ Error messages match standard sh output:
 .fi
 
 .SH BUGS
-Report bugs to <luis.may@holbertonschool.com>
+Report bugs to <luismichelpcontacto@gmail.com>
 
 .SH AUTHORS
 .B Luis Michel
