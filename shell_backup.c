@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <errno.h>
 
 #define MAX_COMMAND_LENGTH 1024
 
@@ -26,22 +27,22 @@ int main(void)
 		printf("#cisfun$ ");
 		fflush(stdout);
 
-		/* Read command */
+		/* Read command from user */
 		read = getline(&line, &len, stdin);
 
 		/* Handle EOF (Ctrl + D) */
 		if (read == -1)
 		{
 			printf("\n");
-			free(line);
-			exit(EXIT_SUCCESS);
+			break;
 		}
 
-		/* Remove newline */
+		/* Remove trailing newline */
 		if (line[read - 1] == '\n')
 			line[read - 1] = '\0';
 
-		if (strlen(line) == 0)
+		/* Ignore empty input */
+		if (line[0] == '\0')
 			continue;
 
 		args[0] = line;
@@ -49,26 +50,26 @@ int main(void)
 		pid = fork();
 		if (pid == -1)
 		{
-			perror("Error");
+			perror("fork");
 			continue;
 		}
 
-		if (pid == 0) /* Child process */
+		if (pid == 0)
 		{
-			/* Execute command */
+			/* Child process: attempt to execute the command */
 			if (execve(args[0], args, environ) == -1)
 			{
-				perror("./shell");
-				free(line);
+				fprintf(stderr, "%s: No such file or directory\n", args[0]);
 				exit(EXIT_FAILURE);
 			}
 		}
 		else
 		{
+			/* Parent process: wait for child */
 			wait(NULL);
 		}
 	}
 
 	free(line);
-	return (0);
+	return 0;
 }
