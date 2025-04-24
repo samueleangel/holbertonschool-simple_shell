@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h>
-#include <errno.h>
 
 #define MAX_COMMAND_LENGTH 1024
 
@@ -20,28 +19,32 @@ int main(void)
 	pid_t pid;
 	char *args[] = {NULL, NULL};
 	extern char **environ;
+	int interactive = isatty(STDIN_FILENO);
 
 	while (1)
 	{
-		/* Display prompt */
-		printf("#cisfun$ ");
-		fflush(stdout);
+		/* Only show prompt if in interactive mode */
+		if (interactive)
+		{
+			printf("#cisfun$ ");
+			fflush(stdout);
+		}
 
-		/* Read command from user */
 		read = getline(&line, &len, stdin);
 
 		/* Handle EOF (Ctrl + D) */
 		if (read == -1)
 		{
-			printf("\n");
+			if (interactive)
+				printf("\n");
 			break;
 		}
 
-		/* Remove trailing newline */
+		/* Remove newline character */
 		if (line[read - 1] == '\n')
 			line[read - 1] = '\0';
 
-		/* Ignore empty input */
+		/* Skip empty input */
 		if (line[0] == '\0')
 			continue;
 
@@ -54,18 +57,16 @@ int main(void)
 			continue;
 		}
 
-		if (pid == 0)
+		if (pid == 0) /* Child */
 		{
-			/* Child process: attempt to execute the command */
 			if (execve(args[0], args, environ) == -1)
 			{
 				fprintf(stderr, "%s: No such file or directory\n", args[0]);
 				exit(EXIT_FAILURE);
 			}
 		}
-		else
+		else /* Parent */
 		{
-			/* Parent process: wait for child */
 			wait(NULL);
 		}
 	}
