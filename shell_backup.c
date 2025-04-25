@@ -113,8 +113,6 @@ int main(void)
 			if (WIFEXITED(status))
 			{
 				last_status = WEXITSTATUS(status);
-				if (last_status == 0 && !isatty(STDIN_FILENO))
-					printf("OK\n");
 			}
 		}
 
