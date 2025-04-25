@@ -57,18 +57,26 @@ int main(void)
 	/* PATH handling */
 	if (strchr(argv_exec[0], '/') == NULL)
 	{
-		full_path = find_in_path(argv_exec[0]);
+		char *full_path = find_in_path(argv_exec[0]);
 		if (full_path == NULL)
 		{
-			fprintf(stderr, "%s: command not found\n", argv_exec[0]);
+			fprintf(stderr, "./hsh: 1: %s: not found\n", argv_exec[0]);
 			last_status = 127;
 			free(argv_exec);
 			free(command);
 			continue;
 		}
+		free(argv_exec[0]);
 		argv_exec[0] = full_path;
 	}
-
+	else if (access(argv_exec[0], X_OK) != 0)
+	{
+		fprintf(stderr, "./hsh: 1: %s: not found\n", argv_exec[0]);
+		last_status = 127;
+		free(argv_exec);
+		free(command);
+		continue;
+	}
 	/* Execute command */
 	pid = fork();
 	if (pid == -1)
