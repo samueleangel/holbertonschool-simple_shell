@@ -10,7 +10,7 @@ int main(void)
 	pid_t pid;
 	int status;
 	static int last_status = 0;
-	char *full_path = NULL;
+	/*char *full_path = NULL;*/
 
 	set_sigint_handler();
 
