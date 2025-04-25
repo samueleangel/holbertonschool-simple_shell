@@ -1,18 +1,23 @@
 #include "main.h"
+#include <unistd.h>
 
 /**
- * print_env - Imprime environ sin modificaciones
+ * print_env - Print environment variables
  */
 void print_env(void)
 {
-    char **env = environ;
-    size_t len;
+	extern char **environ;
+	int i = 0;
+	size_t len;
 
-    while (*env)
-    {
-        len = strlen(*env);
-        write(STDOUT_FILENO, *env, len);
-        write(STDOUT_FILENO, "\n", 1);
-        env++;
-    }
+	if (environ == NULL)
+		return;
+
+	while (environ[i] != NULL)
+	{
+		len = strlen(environ[i]);
+		write(STDOUT_FILENO, environ[i], len);
+		write(STDOUT_FILENO, "\n", 1);
+		i++;
+	}
 }

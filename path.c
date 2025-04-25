@@ -1,53 +1,55 @@
 #include "main.h"
 
-extern char **environ;
+#include "main.h"
+#include <sys/stat.h>
 
 /**
- * find_in_path - Finds command in PATH without getenv.
- * @cmd: Command to search.
- * Return: Full path or NULL.
+ * find_in_path - Find command in PATH
+ * @cmd: Command to find
+ * Return: Full path or NULL
  */
 char *find_in_path(char *cmd)
 {
-	char *path = NULL, *path_copy, *dir, *full_path;
+	char *path = NULL;
+	char *path_copy = NULL;
+	char *dir = NULL;
+	char *full_path = NULL;
 	int i = 0;
+	struct stat st;
 
-	while (environ[i])
+	/* Find PATH in environment */
+	while (environ[i] != NULL && path == NULL)
 	{
 		if (strncmp(environ[i], "PATH=", 5) == 0)
-		{
 			path = environ[i] + 5;
-			break;
-		}
 		i++;
 	}
 
-	if (!path)
+	if (path == NULL || *path == '\0')
 		return (NULL);
 
 	path_copy = strdup(path);
-	if (!path_copy)
+	if (path_copy == NULL)
 		return (NULL);
 
 	full_path = malloc(1024);
-	if (!full_path)
+	if (full_path == NULL)
 	{
 		free(path_copy);
 		return (NULL);
 	}
 
 	dir = strtok(path_copy, ":");
-	while (dir)
+	while (dir != NULL)
 	{
 		snprintf(full_path, 1024, "%s/%s", dir, cmd);
-		if (access(full_path, X_OK) == 0)
+		if (stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
 		{
 			free(path_copy);
 			return (full_path);
 		}
 		dir = strtok(NULL, ":");
 	}
-
 	free(full_path);
 	free(path_copy);
 	return (NULL);
