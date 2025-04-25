@@ -13,6 +13,7 @@
 
 extern char **command_history;
 extern int history_count;
+extern char **environ;
 
 /* Prototipos */
 void prompt(void);

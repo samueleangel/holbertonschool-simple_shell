@@ -10,7 +10,6 @@ int main(void)
 {
 	char *command = NULL;
 	char **argv_exec = NULL;
-	size_t len = 0;
 	pid_t pid;
 	int status;
 	static int last_status = 0;
