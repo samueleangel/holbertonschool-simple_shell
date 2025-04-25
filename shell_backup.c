@@ -1,4 +1,11 @@
 #include "main.h"
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <signal.h>
 
 extern char **environ;
 
@@ -35,7 +42,6 @@ int main(void)
 			continue;
 		}
 
-		/* Built-ins */
 		if (strcmp(argv_exec[0], "exit") == 0)
 		{
 			free(argv_exec);
@@ -59,7 +65,6 @@ int main(void)
 			continue;
 		}
 
-		/* PATH handling */
 		if (strchr(argv_exec[0], '/') == NULL)
 		{
 			char *full_path = find_in_path(argv_exec[0]);
@@ -76,8 +81,15 @@ int main(void)
 				continue;
 			}
 		}
+		else if (access(argv_exec[0], X_OK) != 0)
+		{
+			fprintf(stderr, "%s: command not found\n", argv_exec[0]);
+			free(argv_exec);
+			free(command);
+			command = NULL;
+			continue;
+		}
 
-		/* Fork + execve */
 		pid = fork();
 
 		if (pid == -1)
@@ -101,6 +113,8 @@ int main(void)
 			if (WIFEXITED(status))
 			{
 				last_status = WEXITSTATUS(status);
+				if (last_status == 0 && !isatty(STDIN_FILENO))
+					printf("OK\n");
 			}
 		}
 
