@@ -3,7 +3,7 @@
 #define READ_SIZE 1024
 
 /**
- * read_command - Lee input con read() (C89 compliant)
+ * read_command - Reads input sin realloc (C89 compliant)
  * Return: Comando (malloc) o NULL en EOF
  */
 char *read_command(void)
@@ -19,7 +19,8 @@ char *read_command(void)
 
     buffer[bytes_read] = '\0';
     newline = strchr(buffer, '\n');
-    if (newline) *newline = '\0';
+    if (newline)
+        *newline = '\0';
 
     command = malloc(strlen(buffer) + 1);
     if (!command)

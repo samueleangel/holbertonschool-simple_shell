@@ -1,67 +1,115 @@
 #include "main.h"
-#include <sys/stat.h>
 
 extern char **environ;
-char **command_history = NULL;
-int history_count = 0;
-int last_status = 0;
 
 /**
- * main - Loop principal del shell
- * Return: Siempre 0 (éxito)
+ * main - Entry point of the shell.
+ * Return: 0 on success, or exit status.
  */
 int main(void)
 {
-    char *command = NULL;
-    char **args = NULL;
+	char *command = NULL;
+	char **argv_exec = NULL;
+	size_t len = 0;
+	pid_t pid;
+	int status;
+	static int last_status = 0;
 
-    set_sigint_handler();
+	set_sigint_handler();
 
-    while (1) {
-        prompt();
-        
-        command = read_command();
-        if (!command) {
-            free_command_cache();
-            exit(last_status);
-        }
+	while (1)
+	{
+		prompt();
+		command = read_command();
+		if (command == NULL)
+		{
+			free_command_cache();
+			exit(0);
+		}
 
-        args = parse_command(command);
-        if (!args || !args[0]) {
-            free(command);
-            continue;
-        }
+		argv_exec = parse_command(command);
+		if (argv_exec == NULL || argv_exec[0] == NULL)
+		{
+			free(argv_exec);
+			free(command);
+			command = NULL;
+			continue;
+		}
 
-        /* Built-ins */
-        if (strcmp(args[0], "exit") == 0) {
-            free(args);
-            free(command);
-            builtin_exit(); 
-        } else if (strcmp(args[0], "cd") == 0) {
-            builtin_cd(args);  
-        } else if (strcmp(args[0], "env") == 0) {
-            print_env();  
-        } else {
-            char *full_path = (strchr(args[0], '/')) ? args[0] : find_in_path(args[0]);
-            if (!full_path) {
-                fprintf(stderr, "%s: command not found\n", args[0]);
-                last_status = 127;
-            } else {
-                pid_t pid = fork();
-                if (pid == 0) {
-                    execve(full_path, args, environ);
-                    perror(args[0]);
-                    _exit(127);
-                } else {
-                    wait(&last_status);
-                }
-                if (full_path != args[0]) free(full_path);
-            }
-        }
+		/* Built-ins */
+		if (strcmp(argv_exec[0], "exit") == 0)
+		{
+			free(argv_exec);
+			free(command);
+			_exit(last_status);
+		}
+		if (strcmp(argv_exec[0], "cd") == 0)
+		{
+			builtin_cd(argv_exec);
+			free(argv_exec);
+			free(command);
+			command = NULL;
+			continue;
+		}
+		if (strcmp(argv_exec[0], "env") == 0)
+		{
+			print_env();
+			free(argv_exec);
+			free(command);
+			command = NULL;
+			continue;
+		}
 
-        free(args);
-        free(command);
-    }
-    return (0);
+		/* PATH handling */
+		if (strchr(argv_exec[0], '/') == NULL)
+		{
+			char *full_path = find_in_path(argv_exec[0]);
+			if (full_path)
+			{
+				argv_exec[0] = full_path;
+			}
+			else
+			{
+				fprintf(stderr, "%s: command not found\n", argv_exec[0]);
+				free(argv_exec);
+				free(command);
+				command = NULL;
+				continue;
+			}
+		}
+
+		/* Fork + execve */
+		pid = fork();
+
+		if (pid == -1)
+		{
+			perror("fork");
+			free(argv_exec);
+			free(command);
+			command = NULL;
+			continue;
+		}
+
+		if (pid == 0)
+		{
+			execve(argv_exec[0], argv_exec, environ);
+			fprintf(stderr, "%s: command not found\n", argv_exec[0]);
+			_exit(127);
+		}
+		else
+		{
+			waitpid(pid, &status, 0);
+			if (WIFEXITED(status))
+			{
+				last_status = WEXITSTATUS(status);
+			}
+		}
+
+		free(argv_exec);
+		free(command);
+		command = NULL;
+	}
+
+	free_command_cache();
+	return 0;
 }
-
