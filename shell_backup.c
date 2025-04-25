@@ -14,6 +14,7 @@ int main(void)
 	int status;
 	static int last_status = 0;
 	char *full_path = NULL;
+	int should_free_command = 1; /* Bandera para controlar liberación */
 
 	set_sigint_handler();
 
@@ -57,7 +58,7 @@ int main(void)
 			continue;
 		}
 
-		/* PATH handling - Versión mejorada */
+		/* PATH handling */
 		if (strchr(argv_exec[0], '/') == NULL)
 		{
 			full_path = find_in_path(argv_exec[0]);
@@ -69,8 +70,9 @@ int main(void)
 				free(command);
 				continue;
 			}
-			free(argv_exec[0]);	/* Liberar comando original */
+			/* No liberamos argv_exec[0] aquí, se libera con command */
 			argv_exec[0] = full_path;
+			should_free_command = 0; /* Evitar doble free */
 		}
 		else if (access(argv_exec[0], X_OK) != 0)
 		{
@@ -88,7 +90,8 @@ int main(void)
 			perror("fork");
 			last_status = 1;
 			free(argv_exec);
-			free(command);
+			if (should_free_command)
+				free(command);
 			continue;
 		}
 
@@ -106,7 +109,10 @@ int main(void)
 		}
 
 		free(argv_exec);
-		free(command);
+		if (should_free_command)
+			free(command);
+		else
+			should_free_command = 1; /* Reset flag */
 	}
 	return (0);
 }
