@@ -18,15 +18,15 @@ int main(void)
     set_sigint_handler();
 
     while (1) {
-        prompt();  // Usa tu función existente
+        prompt();
         
-        command = read_command();  // Versión modificada sin realloc
+        command = read_command();
         if (!command) {
-            free_command_cache();  // Usa tu función de limpieza
+            free_command_cache();
             exit(last_status);
         }
 
-        args = parse_command(command);  // Usa tu parser existente
+        args = parse_command(command);
         if (!args || !args[0]) {
             free(command);
             continue;
@@ -36,13 +36,12 @@ int main(void)
         if (strcmp(args[0], "exit") == 0) {
             free(args);
             free(command);
-            builtin_exit();  // Usa tu función existente
+            builtin_exit(); 
         } else if (strcmp(args[0], "cd") == 0) {
-            builtin_cd(args);  // Usa tu función existente
+            builtin_cd(args);  
         } else if (strcmp(args[0], "env") == 0) {
-            print_env();  // Versión corregida abajo
+            print_env();  
         } else {
-            // Ejecución normal (PATH handling con tu find_in_path)
             char *full_path = (strchr(args[0], '/')) ? args[0] : find_in_path(args[0]);
             if (!full_path) {
                 fprintf(stderr, "%s: command not found\n", args[0]);
