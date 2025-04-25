@@ -20,7 +20,7 @@ int main(void)
 	while (1)
 	{
 		prompt();
-		command = read_command(&command, &len);
+		command = read_command(void);
 		if (command == NULL)
 		{
 			free_command_cache();
