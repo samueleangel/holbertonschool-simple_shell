@@ -16,7 +16,7 @@ extern int history_count;
 
 /* Prototipos */
 void prompt(void);
-char *read_command(char **command, size_t *len);
+char *read_command(void);
 char **parse_command(char *command);
 void set_sigint_handler(void);
 void builtin_exit(void);

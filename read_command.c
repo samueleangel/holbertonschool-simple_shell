@@ -1,6 +1,6 @@
 #include "main.h"
 
-#define READ_SIZE 1024
+#define BUFFER_SIZE 1024
 
 /**
  * read_command - Reads user input.
@@ -14,9 +14,8 @@ char *read_command(void)
 	ssize_t bytes_read;
 	char *command = NULL;
 	size_t cmd_len = 0;
-	char *newline_pos
+	char *newline_pos;
 	
-	char *newline_pos = NULL;
 	bytes_read = read(STDIN_FILENO, buffer, BUFFER_SIZE -1);
 	if(bytes_read <= 0)
 		return (NULL);
