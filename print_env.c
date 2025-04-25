@@ -9,7 +9,7 @@ void print_env(void)
 	int i = 0;
 	size_t len;
 
-	while (environ[i] != NULL)
+	while (environ[i])
 	{
 		len = strlen(environ[i]);
 		write(STDOUT_FILENO, environ[i], len);

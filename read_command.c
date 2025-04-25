@@ -1,40 +1,30 @@
 #include "main.h"
 
-#define BUFFER_SIZE 1024
+#define READ_SIZE 1024
 
 /**
- * read_command - Reads user input.
- * @command: Buffer to store input.
- * @len: Size of buffer.
- * Return: Command string or NULL.
+ * read_command - Lee input con read() (C89 compliant)
+ * Return: Comando (malloc) o NULL en EOF
  */
 char *read_command(void)
 {
-	char buffer[BUFFER_SIZE];
-	ssize_t bytes_read;
-	char *command = NULL;
-	size_t cmd_len = 0;
-	char *newline_pos;
-	
-	bytes_read = read(STDIN_FILENO, buffer, BUFFER_SIZE -1);
-	if(bytes_read <= 0)
-		return (NULL);
+    static char buffer[READ_SIZE];
+    ssize_t bytes_read;
+    char *command = NULL;
+    char *newline;
 
-	buffer[bytes_read] = '\0';
+    bytes_read = read(STDIN_FILENO, buffer, READ_SIZE - 1);
+    if (bytes_read <= 0)
+        return NULL;
 
-	newline_pos = strchr(buffer, '\n');
-	if (newline_pos)
-		*newline_pos = '\0';
-	else
-		newline_pos = buffer + bytes_read;
+    buffer[bytes_read] = '\0';
+    newline = strchr(buffer, '\n');
+    if (newline) *newline = '\0';
 
-	cmd_len = newline_pos - buffer;
-	command = malloc(cmd_len + 1);
-	if (!command)
-		return (NULL);
+    command = malloc(strlen(buffer) + 1);
+    if (!command)
+        return NULL;
 
-	strncpy(command, buffer, cmd_len);
-	command[cmd_len] = '\0';
-
-	return (command);
+    strcpy(command, buffer);
+    return command;
 }
