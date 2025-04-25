@@ -8,40 +8,34 @@
  * @len: Size of buffer.
  * Return: Command string or NULL.
  */
-char *read_command(char **command, size_t *len)
+char *read_command(void)
 {
-	static char buffer[READ_SIZE];
+	char buffer[BUFFER_SIZE];
 	ssize_t bytes_read;
-	char *new_command = NULL;
+	char *command = NULL;
+	size_t cmd_len = 0;
+	char *newline_pos
+	
+	char *newline_pos = NULL;
+	bytes_read = read(STDIN_FILENO, buffer, BUFFER_SIZE -1);
+	if(bytes_read <= 0)
+		return (NULL);
 
-	if (*command == NULL)
-		*len = 0;
+	buffer[bytes_read] = '\0';
 
-	while ((bytes_read = read(STDIN_FILENO, buffer, READ_SIZE - 1)) > 0)
-	{
-		buffer[bytes_read] = '\0';
-		new_command = realloc(*command, *len + bytes_read + 1);
-		if (!new_command)
-		{
-			free(*command);
-			return NULL;
-		}
+	newline_pos = strchr(buffer, '\n');
+	if (newline_pos)
+		*newline_pos = '\0';
+	else
+		newline_pos = buffer + bytes_read;
 
-		*command = new_command;
-		strcpy(*command + *len, buffer);
-		*len += bytes_read;
+	cmd_len = newline_pos - buffer;
+	command = malloc(cmd_len + 1);
+	if (!command)
+		return (NULL);
 
-		if (strchr(buffer, '\n'))
-			break;
-	}
-	if (bytes_read <= 0 && *len == 0)
-		return NULL;
+	strncpy(command, buffer, cmd_len);
+	command[cmd_len] = '\0';
 
-	if (*len > 0 && (*command)[*len - 1] == '\n')
-	{
-		(*command)[*len - 1] = '\0';
-		(*len)--;
-	}
-
-	return *command;
+	return (command);
 }
