@@ -1,13 +1,26 @@
 #include "main.h"
 
+extern char **environ;
+
 /**
- * find_in_path - Finds command in PATH.
+ * find_in_path - Finds command in PATH without getenv.
  * @cmd: Command to search.
  * Return: Full path or NULL.
  */
 char *find_in_path(char *cmd)
 {
-	char *path = getenv("PATH"), *path_copy, *dir, *full_path;
+	char *path = NULL, *path_copy, *dir, *full_path;
+	int i = 0;
+
+	while (environ[i])
+	{
+		if (strncmp(environ[i], "PATH=", 5) == 0)
+		{
+			path = environ[i] + 5;
+			break;
+		}
+		i++;
+	}
 
 	if (!path)
 		return (NULL);

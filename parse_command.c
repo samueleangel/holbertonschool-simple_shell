@@ -1,5 +1,7 @@
 #include "main.h"
 
+#define MAX_ARGS 128
+
 /**
  * parse_command - Splits command into args.
  * @command: Command string.
@@ -8,26 +10,18 @@
 char **parse_command(char *command)
 {
 	char **argv, *token;
-	int i = 0, bufsize = 64;
+	int i = 0;
 
-	argv = malloc(sizeof(char *) * bufsize);
+	argv = malloc(sizeof(char *) * MAX_ARGS);
 	if (!argv)
 		return (NULL);
 
 	token = strtok(command, " ");
-	while (token)
+	while (token && i < MAX_ARGS - 1)
 	{
 		argv[i++] = token;
-		if (i >= bufsize)
-		{
-			bufsize += 64;
-			argv = realloc(argv, sizeof(char *) * bufsize);
-			if (!argv)
-				return (NULL);
-		}
 		token = strtok(NULL, " ");
 	}
 	argv[i] = NULL;
 	return (argv);
 }
-
