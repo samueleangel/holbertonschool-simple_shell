@@ -5,13 +5,12 @@
  */
 void print_env(void)
 {
-	extern char **environ;
-	int i = 0;
+	char **env = environ;
 
-	while (environ[i])
+	while (*env)
 	{
-		write(STDOUT_FILENO, environ[i], strlen(environ[i]));
+		write(STDOUT_FILENO, *env, strlen(*env);
 		write(STDOUT_FILENO, "\n", 1);
-		i++;
+		env++;
 	}
 }
