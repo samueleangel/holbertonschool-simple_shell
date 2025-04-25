@@ -5,6 +5,7 @@
  */
 void print_env(void)
 {
+	extern char **environ;
 	int i = 0;
 	size_t len;
 
